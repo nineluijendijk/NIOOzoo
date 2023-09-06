@@ -48,3 +48,6 @@ BM <- df %>% subset(Diet == "B" & Gender == "M") %>% pull(Weight) %>% mean()
 
 M0 <- lm(Weight ~ Weeks, data = df) # simple linear regression
 summary(M0)
+
+anova(M4, M5)
+# The first model is the null model, with simpler parameters. it shows that the log likelihood of the second model is higher, so this model is better fitted to the data. However, as the p value of the chi squared test is 0.06 (> 0.05), the difference is not statistically significant.
