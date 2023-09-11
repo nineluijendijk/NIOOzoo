@@ -6,14 +6,17 @@ library(lmerTest)
 library(readxl)
 library(here)
 library(tidyverse)
+library(sjPlot)
 
 df <- read_excel(here("data/oefenenLMM.xlsx")) # get data
 
-M1 <- lmer(Weight ~ Weeks + (1|Subjects), REML = F, data = df) # the 1 is used to show that all persons have their own intersect
+# lmer(variable of interest ~ variable it depends on + (0 or 1 to allow for unique intersect | variable with random slope), REML is set to false so we can calculate the likelihood later with ANOVA, data = df)
+
+M1 <- lmer(Weight ~ Weeks + (1|Subjects), REML = T, data = df) # the 1 is used to show that all persons have their own intersect
 summary(M1)
 ranef(M1) # how much larger is the intercept than the overall intercept
 
-M2 <- lmer(Weight ~ Weeks + (1 + Weeks|Subjects), REML = F, data = df) # random slope on"Weeks", because different individuals probably respond differently to diets, so each should have their own slope
+M2 <- lmer(Weight ~ Weeks + (1 + Weeks|Subjects), REML = F, data = df) # random slope on "Weeks", because different individuals probably respond differently to diets, so each should have their own slope
 summary(M2) # there is a negative correlation between slopes and intercepts (-0.88), which is expected as bigger people lose weight faster
 ranef(M2) # how much larger is the intercept than the overall intercept and what is each person's slope
 
@@ -48,6 +51,7 @@ BM <- df %>% subset(Diet == "B" & Gender == "M") %>% pull(Weight) %>% mean()
 
 M0 <- lm(Weight ~ Weeks, data = df) # simple linear regression
 summary(M0)
+tab_model(M0)
 
 anova(M4, M5)
 # The first model is the null model, with simpler parameters. it shows that the log likelihood of the second model is higher, so this model is better fitted to the data. However, as the p value of the chi squared test is 0.06 (> 0.05), the difference is not statistically significant.
