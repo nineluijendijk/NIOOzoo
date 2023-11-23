@@ -12,6 +12,9 @@ data <- data %>% mutate("Speed" = WeightAfter - WeightBefore,
 
 summary <- data %>% group_by(RPM) %>% summarize(SpeedM = mean(Speed),
                                                 StDev = sd(Speed)) # Normally I'd use the mean, but using single values gives a different R2
+zero <- c(0, 0, 0)
+
+summary <- rbind(summary, zero)
 
 summary %>% ggplot(aes(x = RPM, y = SpeedM))+
   geom_point()+
