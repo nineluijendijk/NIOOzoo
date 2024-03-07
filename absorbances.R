@@ -13,7 +13,7 @@ model <- lm(`Carbon Content (mg/L)` ~ `Light absorption (λ)`, data = regression
 
 data <- mutate(datatidy, "Carbon_mgL" = (datatidy$Absorbance *  model$coefficients[[2]] + model$coefficients[[1]]) / 5 )
 
-level_order <- c("KB", "KM", "KH", "GW", "ADaM") 
+level_order <- c("ADaM", "GW", "KB", "KH", "KM") 
 
 ggplot(data = data, aes(y = Carbon_mgL, x = factor(Medium, level = level_order), fill = Species))+
   geom_boxplot()+
