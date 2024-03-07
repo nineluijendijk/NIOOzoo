@@ -11,7 +11,8 @@ summary <- data %>% group_by(Medium, Species) %>% summarize(Weight = mean(Weight
 ggplot(data = summary, aes(x = Medium, y = Weight, fill = Species))+
   geom_col(position = "dodge")+
   theme_minimal()+
-  labs(y = "Weight in µg")
+  labs(y = "Weight in µg",
+       title = "Weight of all individuals per treatment")
 
 data %>% filter(! Medium == "KM" | ! Species == "D. galeata") %>% group_by(Medium, Species) %>%
   summarise(p.value.sw = shapiro.test(WeightIncrease_µg)$p.value) 
@@ -27,3 +28,4 @@ for (i in species) {
   print(summary(res_aov))
   print(TukeyHSD(res_aov))
 }
+

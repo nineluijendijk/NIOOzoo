@@ -22,34 +22,18 @@ ggplot(data = data, aes(y = Carbon_mgL, x = factor(Medium, level = level_order),
        title = "Carbon concentration of the medium after two days",
        x = "Medium")
 
-dataF <- filter(data, Species == "D. pulex")
-  
-dataF %>%
-  group_by(Medium) %>%
+data %>% filter(! Medium == "GW" | ! Species == "D. ambigua") %>%
+  group_by(Medium, Species) %>%
   summarise(p.value.sw = shapiro.test(Carbon_mgL)$p.value) 
+
+species <- c("D. pulex", "D. pulicaria", "D. galeata", "D. ambigua")
+
+for (i in species) {
+  print(i)
+  dataF <- data %>% filter(Species == i)
+  print(leveneTest(Carbon_mgL ~ Medium, data = dataF)) 
   
-leveneTest(Carbon_mgL ~ Medium, data = dataF)[3] # variances arent equal, p = 0.03612178
-  
-  summary <- group_by(dataF, Medium) %>%
-    summarise(count = n(),
-              mean = mean(Carbon_mgL, na.rm = TRUE),
-              sd = sd(Carbon_mgL, na.rm = TRUE),
-              var = var(Carbon_mgL, na.rm=TRUE))
-  
-max(summary$var) / min(summary$var) # 3.814713, since the max variance is not 4 times larger than the min I will still conduct a one-way ANOVA
-  
-res_aov <- aov(Carbon_mgL ~ Medium, data = dataF)
-summary(res_aov)
-TukeyHSD(res_aov)
-
-
-
-
-
-
-
-#ttest <- pairwise.t.test(data$Carbon_mgL, data$Medium,
-#                p.adjust.method = "bonf")
-
-#o <- as.numeric(ttest[[3]]) %>% order()
-#as.numeric(ttest[[3]])[o]
+  res_aov <- aov(Carbon_mgL ~ Medium, data = dataF)
+  print(summary(res_aov))
+  print(TukeyHSD(res_aov))
+}
