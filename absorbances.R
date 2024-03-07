@@ -13,14 +13,13 @@ model <- lm(`Carbon Content (mg/L)` ~ `Light absorption (λ)`, data = regression
 
 data <- mutate(datatidy, "Carbon_mgL" = (datatidy$Absorbance *  model$coefficients[[2]] + model$coefficients[[1]]) / 5 )
 
-level_order <- c("ADaM", "GW", "KB", "KH", "KM") 
-
-ggplot(data = data, aes(y = Carbon_mgL, x = factor(Medium, level = level_order), fill = Species))+
+ggplot(data = data, aes(y = Carbon_mgL, x = factor(Species), fill = Medium))+
   geom_boxplot()+
   theme_minimal()+
   labs(y = "Carbon concentration mg/L", 
        title = "Carbon concentration of the medium after two days",
-       x = "Medium")
+       x = "Species")+
+  scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"))
 
 data %>% filter(! Medium == "GW" | ! Species == "D. ambigua") %>%
   group_by(Medium, Species) %>%

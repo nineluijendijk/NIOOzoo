@@ -19,15 +19,16 @@ plotting <- pivot_longer(summary, cols = c(`Small juvenile`, `Large juvenile`, A
             names_to = "Age",
             values_to = "indL")
 
-ggplot(plotting, aes(x = as.numeric(interaction(Species,Medium)), y = indL, fill = Species, color=Age)) + 
+ggplot(plotting, aes(x = as.numeric(interaction(Medium,Species)), y = indL, fill = Medium, color=Age)) + 
   geom_bar(stat = "identity", size = 0.7) +
-  scale_x_continuous(breaks=c(2.5, 6.5, 10.5, 14.5, 18.5),labels=c("ADaM","GW","KB", "KH", "KM"))+
+  scale_x_continuous(breaks=c(3, 8, 13, 18),labels=c("D. ambigua","D. galeata","D. pulex", "D. pulicaria"))+
   scale_y_continuous(breaks = seq(0, 1750, 250))+
-  scale_color_manual(values = c("deeppink","darkorange","blue4")) +
+  scale_color_manual(values = c("#30cf4e","#e7d718","#00168a"))+
+  scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"))+
   guides(color = guide_legend(override.aes = list(fill = "white")))+
   labs(y = "Individuals per liter", 
        title = "Mean number of individuals per liter",
-       x = "Medium")+
+       x = "Species")+
   theme_minimal()
 
 data %>%

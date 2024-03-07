@@ -8,11 +8,12 @@ data <- dataraw %>% mutate("WeightIncrease_µg" = WeightTotal - WeightFilter)
 
 summary <- data %>% group_by(Medium, Species) %>% summarize(Weight = mean(WeightIncrease_µg, na.rm = TRUE))
 
-ggplot(data = summary, aes(x = Medium, y = Weight, fill = Species))+
+ggplot(data = summary, aes(x = Species, y = Weight, fill = Medium))+
   geom_col(position = "dodge")+
   theme_minimal()+
   labs(y = "Weight in µg",
-       title = "Weight of all individuals per treatment")
+       title = "Mean weight of the population")+
+  scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"))
 
 data %>% filter(! Medium == "KM" | ! Species == "D. galeata") %>% group_by(Medium, Species) %>%
   summarise(p.value.sw = shapiro.test(WeightIncrease_µg)$p.value) 
