@@ -19,7 +19,8 @@ ggplot(data = data, aes(y = Carbon_mgL, x = factor(Species), fill = Medium))+
   labs(y = "Carbon concentration mg/L", 
        title = "Carbon concentration of the medium after two days",
        x = "Species")+
-  scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"))
+  scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"),
+                                 labels = c("ADaM", "Groundwater", "Aerated tap water", "Hay water", "Manure water"))
 
 data %>% filter(! Medium == "GW" | ! Species == "D. ambigua") %>%
   group_by(Medium, Species) %>%

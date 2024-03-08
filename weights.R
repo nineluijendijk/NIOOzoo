@@ -12,8 +12,9 @@ ggplot(data = summary, aes(x = Species, y = Weight, fill = Medium))+
   geom_col(position = "dodge")+
   theme_minimal()+
   labs(y = "Weight in µg",
-       title = "Mean weight of the population")+
-  scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"))
+       title = "Mean dry weight of the population")+
+  scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"),
+                               labels = c("ADaM", "Groundwater", "Aerated tap water", "Hay water", "Manure water"))
 
 data %>% filter(! Medium == "KM" | ! Species == "D. galeata") %>% group_by(Medium, Species) %>%
   summarise(p.value.sw = shapiro.test(WeightIncrease_µg)$p.value) 
