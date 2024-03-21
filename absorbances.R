@@ -42,4 +42,3 @@ for (i in species) {
                  data=dataF,
                  method="bonferroni"))
 }
-

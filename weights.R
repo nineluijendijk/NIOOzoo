@@ -43,4 +43,3 @@ for (i in species) {
   print(pairwise.wilcox.test(dataF$Weight_mgL, dataF$Medium,
                              p.adjust.method = "BH", exact = FALSE))
 }
-
