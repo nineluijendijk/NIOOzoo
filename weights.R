@@ -2,7 +2,6 @@ library(readxl)
 library(tidyverse)
 library(here)
 library(car)
-library(flextable)
 
 dataraw <- read_excel(here("data_raw/Weighingsheet.xlsx"), range = "A1:E61", na = "NA")
 
@@ -32,39 +31,8 @@ for (i in species) {
   
   res_aov <- aov(Weight_mgL ~ Medium, data = dataF)
   print(summary(res_aov))
-  comb <- matrix()
-  comb <- TukeyHSD(res_aov)[[1]][,4] %>% t() %>% insertRow(comb, 1, .)
-  
-  dataCor <- dataF %>% select(Species, Medium, Clone, Weight_mgL) %>% pivot_wider(names_from = Medium,
-                                                                                             values_from = Weight_mgL)
-  
-  correlation <- tibble()
-  
-  cor(dataCor$ADaM, dataCor$GW) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$ADaM, dataCor$KB) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$GW, dataCor$KB) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$ADaM, dataCor$KH) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$GW, dataCor$KH) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$KB, dataCor$KH) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$ADaM, dataCor$KM) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$GW, dataCor$KM) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$KB, dataCor$KM) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$KH, dataCor$KM) %>% rbind(correlation, .) -> correlation
-  colnames(correlation) <- "cor"
-  
-  combined <- cbind(head(comb, n = 10), correlation)
-  combined <- insertCol(as.matrix(combined), 1, c("ADaM - GW", "ADaM - KB", "GW - KB", "ADaM - KH", "GW - KH", "KB - KH", "ADaM - KM", "GW - KM", "KB - KM", "KH - KM"))
-  flextable(as.data.frame(combined)) %>% print()
-  
+  print(TukeyHSD(res_aov))
 }
-
-
-
-
-
-
-
-
 
 for (i in species) {
   print(i)

@@ -67,28 +67,7 @@ for (i in species) {
   print(leveneTest(Total_indL ~ Medium, data = dataF)) 
   
   print(kruskal.test(Total_indL ~ Medium, data = dataF))
-  
-  comb <- dunnTest(Total_indL ~ Medium,
-                   data=dataF,
-                   method="bonferroni")[[2]][c(1, 4)]
-  
-  dataCor <- dataF %>% select(Species, Medium, Clone, Subsample, Total_indL) %>% pivot_wider(names_from = Medium,
-                                         values_from = Total_indL)
-  
-  correlation <- tibble()
-  
-  cor(dataCor$ADaM, dataCor$GW) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$ADaM, dataCor$KB) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$GW, dataCor$KB) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$ADaM, dataCor$KH) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$GW, dataCor$KH) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$KB, dataCor$KH) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$ADaM, dataCor$KM) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$GW, dataCor$KM) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$KB, dataCor$KM) %>% rbind(correlation, .) -> correlation
-  cor(dataCor$KH, dataCor$KM) %>% rbind(correlation, .) -> correlation
-  colnames(correlation) <- "cor"
-  
-  combined <- cbind(comb, correlation)
-  flextable(combined) %>% print()  
+  print(dunnTest(Total_indL ~ Medium,
+                 data=dataF,
+                 method="bonferroni"))
 }
