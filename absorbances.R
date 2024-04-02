@@ -2,6 +2,8 @@ library(readxl)
 library(tidyverse)
 library(here)
 library(car)
+library(FSA)
+library(flextable)
 
 dataraw <- read_excel(here("data_raw/OnderzoekMedium.xlsx"), sheet = "Absorbances", range = "A1:F61", na = "NA")
 # datatidy <- mutate(dataraw, "MeanAbsorbance" = rowMeans(dataraw[ , c(4:6)], na.rm = TRUE), A1=NULL, A2=NULL, A3=NULL)
@@ -31,6 +33,8 @@ data %>% filter(! Medium == "GW" | ! Species == "D. ambigua") %>%
   summarise(p.value.sw = shapiro.test(Carbon_mgL)$p.value) 
 
 species <- c("D. pulex", "D. pulicaria", "D. galeata", "D. ambigua")
+treatment <- unique(data$Medium)
+treatment <- unique(data$Medium)
 
 for (i in species) {
   print(i)
@@ -38,7 +42,27 @@ for (i in species) {
   print(leveneTest(Carbon_mgL ~ Medium, data = dataF)) 
   
   print(kruskal.test(Carbon_mgL ~ Medium, data = dataF))
-  print(dunnTest(Carbon_mgL ~ Medium,
+  comb <- dunnTest(Carbon_mgL ~ Medium,
                  data=dataF,
-                 method="bonferroni"))
+                 method="bonferroni")[[2]][c(1, 4)]
+  
+  dataCor <- dataF[, -5] %>% pivot_wider(names_from = Medium,
+                                        values_from = Carbon_mgL)
+  
+  correlation <- tibble()
+  
+ cor(dataCor$ADaM, dataCor$GW) %>% rbind(correlation, .) -> correlation
+ cor(dataCor$ADaM, dataCor$KB) %>% rbind(correlation, .) -> correlation
+ cor(dataCor$GW, dataCor$KB) %>% rbind(correlation, .) -> correlation
+ cor(dataCor$ADaM, dataCor$KH) %>% rbind(correlation, .) -> correlation
+ cor(dataCor$GW, dataCor$KH) %>% rbind(correlation, .) -> correlation
+ cor(dataCor$KB, dataCor$KH) %>% rbind(correlation, .) -> correlation
+ cor(dataCor$ADaM, dataCor$KM) %>% rbind(correlation, .) -> correlation
+ cor(dataCor$GW, dataCor$KM) %>% rbind(correlation, .) -> correlation
+ cor(dataCor$KB, dataCor$KM) %>% rbind(correlation, .) -> correlation
+ cor(dataCor$KH, dataCor$KM) %>% rbind(correlation, .) -> correlation
+ colnames(correlation) <- "cor"
+ 
+ combined <- cbind(comb, correlation)
+ flextable(combined) %>% print()  
 }
