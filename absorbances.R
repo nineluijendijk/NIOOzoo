@@ -2,6 +2,7 @@ library(readxl)
 library(tidyverse)
 library(here)
 library(car)
+library(FSA)
 
 dataraw <- read_excel(here("data_raw/OnderzoekMedium.xlsx"), sheet = "Absorbances", range = "A1:F61", na = "NA")
 # datatidy <- mutate(dataraw, "MeanAbsorbance" = rowMeans(dataraw[ , c(4:6)], na.rm = TRUE), A1=NULL, A2=NULL, A3=NULL)
@@ -24,7 +25,9 @@ ggplot(data = data, aes(y = Carbon_mgL, x = factor(Species), fill = Medium))+
   scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"),
                                  labels = c("ADaM", "Groundwater", "Aerated tap water", "Hay water", "Manure water"))+
   stat_summary(geom = "errorbar", fun.min = mean, fun = mean, fun.max = mean, width = 0.75,
-               linetype = "dotted", position = position_dodge())
+               linetype = "dotted", position = position_dodge())+
+  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE)#+
+  #stat_compare_means(method = "kruskal.test", size = 2)
 
 data %>% filter(! Medium == "GW" | ! Species == "D. ambigua") %>%
   group_by(Medium, Species) %>%
@@ -41,4 +44,9 @@ for (i in species) {
   print(dunnTest(Carbon_mgL ~ Medium,
                  data=dataF,
                  method="bonferroni"))
+  
+  ggbetweenstats(data = dataF, y = Carbon_mgL, x = Medium, type = "nonparametric", p.adjust.method = "bonferroni") %>% print()
+  
 }
+
+

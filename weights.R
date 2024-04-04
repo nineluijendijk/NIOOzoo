@@ -17,7 +17,8 @@ ggplot(data = data, aes(x = Species, y = Weight_mgL, fill = Medium))+
                                labels = c("ADaM", "Groundwater", "Aerated tap water", "Hay water", "Manure water"))+
   theme(axis.text.x = element_text(face="italic"))+
   stat_summary(geom = "errorbar", fun.min = mean, fun = mean, fun.max = mean, width = 0.75,
-               linetype = "dotted", position = position_dodge())
+               linetype = "dotted", position = position_dodge())+
+  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE)
 
 data %>% filter(! Medium == "KM" | ! Species == "D. galeata") %>% group_by(Medium, Species) %>%
   summarise(p.value.sw = shapiro.test(Weight_mgL)$p.value) 
@@ -43,3 +44,4 @@ for (i in species) {
   print(pairwise.wilcox.test(dataF$Weight_mgL, dataF$Medium,
                              p.adjust.method = "BH", exact = FALSE))
 }
+

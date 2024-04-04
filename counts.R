@@ -52,7 +52,8 @@ ggplot(data, aes(x = factor(Species), y = Total_indL, fill = Medium)) +
   theme(axis.text.x = element_text(face="italic"))+
   stat_summary(geom = "errorbar", fun.min = mean, fun = mean, fun.max = mean, width = 0.75,
                linetype = "dotted", position = position_dodge())+
-  ylim(0, 3000)
+  ylim(0, 3000)+
+  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE)
 
 
 data %>%
