@@ -34,14 +34,3 @@ for (i in species) {
   print(summary(res_aov))
   print(TukeyHSD(res_aov))
 }
-
-for (i in species) {
-  print(i)
-  dataF <- data %>% filter(Species == i)
-  print(leveneTest(Weight_mgL ~ Medium, data = dataF)) 
-  
-  print(kruskal.test(Weight_mgL ~ Medium, data = dataF))
-  print(pairwise.wilcox.test(dataF$Weight_mgL, dataF$Medium,
-                             p.adjust.method = "BH", exact = FALSE))
-}
-

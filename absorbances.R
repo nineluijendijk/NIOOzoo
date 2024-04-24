@@ -3,6 +3,8 @@ library(tidyverse)
 library(here)
 library(car)
 library(FSA)
+library(ggstatsplot)
+library(ggpubr)
 
 dataraw <- read_excel(here("data_raw/OnderzoekMedium.xlsx"), sheet = "Absorbances", range = "A1:F61", na = "NA")
 # datatidy <- mutate(dataraw, "MeanAbsorbance" = rowMeans(dataraw[ , c(4:6)], na.rm = TRUE), A1=NULL, A2=NULL, A3=NULL)
@@ -12,7 +14,9 @@ regression <- read_excel(here("data_raw/Carbon concentration (based on chemostat
 
 model <- lm(`Carbon Content (mg/L)` ~ `Light absorption (λ)`, data = regression) # Calculate regression curve
 
-data <- mutate(datatidy, "Carbon_mgL" = (datatidy$Absorbance *  model$coefficients[[2]] + model$coefficients[[1]]) / 5 )
+data <- mutate(datatidy, "Carbon_mgL" = (datatidy$Absorbance *  model$coefficients[[2]] + model$coefficients[[1]]) / 5 ) 
+
+data <- data %>% filter(Carbon_mgL > 0)
 
 ggplot(data = data, aes(y = Carbon_mgL, x = factor(Species), fill = Medium))+
   stat_boxplot(geom ='errorbar')+
@@ -26,8 +30,7 @@ ggplot(data = data, aes(y = Carbon_mgL, x = factor(Species), fill = Medium))+
                                  labels = c("ADaM", "Groundwater", "Aerated tap water", "Hay water", "Manure water"))+
   stat_summary(geom = "errorbar", fun.min = mean, fun = mean, fun.max = mean, width = 0.75,
                linetype = "dotted", position = position_dodge())+
-  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE)#+
-  #stat_compare_means(method = "kruskal.test", size = 2)
+  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE)
 
 data %>% filter(! Medium == "GW" | ! Species == "D. ambigua") %>%
   group_by(Medium, Species) %>%
@@ -35,9 +38,10 @@ data %>% filter(! Medium == "GW" | ! Species == "D. ambigua") %>%
 
 species <- c("D. pulex", "D. pulicaria", "D. galeata", "D. ambigua")
 
+
 for (i in species) {
   print(i)
-  dataF <- data %>% filter(Species == i)
+  dataF <- data %>% filter(Species == "D. pulex")
   print(leveneTest(Carbon_mgL ~ Medium, data = dataF)) 
   
   print(kruskal.test(Carbon_mgL ~ Medium, data = dataF))
@@ -45,8 +49,18 @@ for (i in species) {
                  data=dataF,
                  method="bonferroni"))
   
-  ggbetweenstats(data = dataF, y = Carbon_mgL, x = Medium, type = "nonparametric", p.adjust.method = "bonferroni") %>% print()
+  ggbetweenstats(data = dataF, y = Carbon_mgL, x = Medium, type = "nonparametric", p.adjust.method = "bonferroni")
   
 }
 
+dummydf <- data.frame(a = rep(c(1, 2), each=2), #create dummy dataframe for the dummy plot
+                      b = c(1, 3, 4, 7),
+                      Measure = rep(c("Median", "Mean"), each=2))
+
+ggplot(dummydf, aes(x=a, y=b, group=Measure))+ #create dummy plot to obtain its legend
+  geom_line(aes(linetype=Measure))+
+  scale_linetype_manual(values=c("dotted", "solid"))+
+  theme_minimal()
+
+dataF %>% group_by(Medium) %>% summarise(mean = mean(Carbon_mgL, na.rm = TRUE)) %>% as.data.frame()
 

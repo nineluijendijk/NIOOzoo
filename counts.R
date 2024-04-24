@@ -3,6 +3,8 @@ library(tidyverse)
 library(here)
 library(car)
 library(FSA)
+library(ggtext)
+library(ggpubr)
 
 dataraw <- read_excel(here("data_raw/Countingsheet.xlsx"), sheet = "Sheet2")
 
@@ -29,31 +31,34 @@ ggplot() +
   geom_errorbar(data = h, aes(x=as.numeric(interaction(Medium,Species)),
                                                ymin=Total-sdev, ymax=Total+sdev))+
   scale_x_continuous(breaks=c(3, 8, 13, 18),labels=c("D. ambigua","D. galeata","D. pulex", "D. pulicaria"))+
+  coord_cartesian(ylim = c(150, 3150))+
   scale_y_continuous(breaks = seq(0, 3250, 250))+
   scale_color_manual(values = c("#30cf4e","#e7d718","#00168a"))+
   scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"),
                     labels = c("ADaM", "Groundwater", "Aerated tap water", "Hay water", "Manure water"))+
   guides(color = guide_legend(override.aes = list(fill = "white")))+
-  labs(y = "Abundance (individuals per liter)", 
-       title = "Mean number of individuals per liter",
+  labs(y = "Abundance (individuals/L)", 
+       title = "Mean number of individuals per liter and age distribution within the population",
        x = "Species")+
   theme_minimal()+
   theme(axis.text.x = element_text(face="italic"))
 
-ggplot(data, aes(x = factor(Species), y = Total_indL, fill = Medium)) + 
+ggplot(data, aes(x = Species, y = Total_indL, fill = Medium)) + 
   stat_boxplot(geom ='errorbar')+
   geom_boxplot() +
   scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"),
                     labels = c("ADaM", "Groundwater", "Aerated tap water", "Hay water", "Manure water"))+
   labs(y = "Abundance (individuals/L)", 
-       title = "Abundance",
+       title = "Abundance in different media",
        x = "Species")+
   theme_minimal()+
   theme(axis.text.x = element_text(face="italic"))+
   stat_summary(geom = "errorbar", fun.min = mean, fun = mean, fun.max = mean, width = 0.75,
                linetype = "dotted", position = position_dodge())+
-  ylim(0, 3000)+
-  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE)
+  coord_cartesian(ylim=c(0,3000))+
+  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE, label.y = 3000)
+
+  
 
 
 data %>%
@@ -61,6 +66,7 @@ data %>%
   summarise(p.value.sw = shapiro.test(Total_indL)$p.value) 
 
 species <- c("D. pulex", "D. pulicaria", "D. galeata", "D. ambigua")
+
 
 for (i in species) {
   print(i)
@@ -71,4 +77,10 @@ for (i in species) {
   print(dunnTest(Total_indL ~ Medium,
                  data=dataF,
                  method="bonferroni"))
+  
+  dataF %>% group_by(Medium) %>% summarise(mean = mean(Total_indL, na.rm = TRUE)) %>% as.data.frame() %>% print()
 }
+
+dataF %>% group_by(Medium) %>% summarise(mean = mean(Total_indL, na.rm = TRUE)) %>% as.data.frame()
+
+
