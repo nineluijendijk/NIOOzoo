@@ -12,13 +12,13 @@ ggplot(data = data, aes(x = Species, y = Weight_mgL, fill = Medium))+
   geom_boxplot()+
   theme_minimal()+
   labs(y = "Biomass (mg/L)",
-       title = "Dry weight per liter")+
+       title = "Dry weight per liter as a measure of biomass")+
   scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"),
                                labels = c("ADaM", "Groundwater", "Aerated tap water", "Hay water", "Manure water"))+
   theme(axis.text.x = element_text(face="italic"))+
   stat_summary(geom = "errorbar", fun.min = mean, fun = mean, fun.max = mean, width = 0.75,
                linetype = "dotted", position = position_dodge())+
-  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE)
+  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE, method = "anova")
 
 data %>% filter(! Medium == "KM" | ! Species == "D. galeata") %>% group_by(Medium, Species) %>%
   summarise(p.value.sw = shapiro.test(Weight_mgL)$p.value) 
