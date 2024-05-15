@@ -4,11 +4,11 @@ library(here)
 library(car)
 library(ggpubr)
 
-dataraw <- read_excel(here("data_raw/Weighingsheet.xlsx"), range = "A1:E61", na = "NA")
+dataraw <- read_excel(here("data_raw/Weighingsheet.xlsx"), range = "A1:E61", na = "NA") # Import dry weight data
 
-data <- dataraw %>% mutate("Weight_mgL" = (WeightTotal - WeightFilter) * 2.5 / 1000)
+data <- dataraw %>% mutate("Weight_mgL" = (WeightTotal - WeightFilter) * 2.5 / 1000) # Calculate dry weight per liter
 
-ggplot(data = data, aes(x = Species, y = Weight_mgL, fill = Medium))+
+ggplot(data = data, aes(x = Species, y = Weight_mgL, fill = Medium))+ # Create boxplot showing different biomass per species/medium
   stat_boxplot(geom ='errorbar')+
   geom_boxplot()+
   theme_minimal()+
@@ -17,16 +17,16 @@ ggplot(data = data, aes(x = Species, y = Weight_mgL, fill = Medium))+
   scale_fill_manual(values = c("#Ff9400", "#E28fd9", "#D9dee0", "#39a6d6", "#Dc1906"),
                                labels = c("ADaM", "Groundwater", "Aerated tap water", "Hay water", "Manure water"))+
   theme(axis.text.x = element_text(face="italic"))+
-  stat_summary(geom = "errorbar", fun.min = mean, fun = mean, fun.max = mean, width = 0.75,
-               linetype = "dotted", position = position_dodge())+
-  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE, method = "anova")
+  stat_summary(geom = "errorbar", fun.min = mean, fun = mean, fun.max = mean, width = 0.75, # add error bars
+               linetype = "dotted", position = position_dodge())+ # add means
+  stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE, method = "anova") # add significance levels
 
-data %>% filter(! Medium == "KM" | ! Species == "D. galeata") %>% group_by(Medium, Species) %>%
+data %>% filter(! Medium == "KM" | ! Species == "D. galeata") %>% group_by(Medium, Species) %>% # check if data is normally distributed
   summarise(p.value.sw = shapiro.test(Weight_mgL)$p.value) 
 
 species <- c("D. pulex", "D. pulicaria", "D. galeata", "D. ambigua")
 
-for (i in species) {
+for (i in species) { # ANOVA and TukeyHSD test for every species
   print(i)
   dataF <- data %>% filter(Species == i)
   print(leveneTest(Weight_mgL ~ Medium, data = dataF)) 

@@ -3,15 +3,14 @@ library(tidyverse)
 library(here)
 library(car)
 library(FSA)
-library(ggtext)
 library(ggpubr)
 
-dataraw <- read_excel(here("data_raw/Countingsheet.xlsx"), sheet = "Sheet2")
+dataraw <- read_excel(here("data_raw/Countingsheet.xlsx"), sheet = "Sheet2") # Import count data
 
-data <- dataraw %>% mutate("SmallJuvenileAbundance_indL" = (1000 / `SampleVolume(mL)`) * SmallJuvenile,
+data <- dataraw %>% mutate("SmallJuvenileAbundance_indL" = (1000 / `SampleVolume(mL)`) * SmallJuvenile, # Calculate abundances
                 "LargeJuvenileAbundance_indL" = (1000 / `SampleVolume(mL)`) * LargeJuvenile,
                 "AdultAbundance_indL" = (1000 / `SampleVolume(mL)`) * Adult,
-                "Total_indL" = SmallJuvenileAbundance_indL + LargeJuvenileAbundance_indL + AdultAbundance_indL)
+                "Total_indL" = SmallJuvenileAbundance_indL + LargeJuvenileAbundance_indL + AdultAbundance_indL) 
 
 summary <- data %>% group_by(Species, Medium) %>% summarize(`Small juvenile` = mean(SmallJuvenileAbundance_indL, na.rm = TRUE),
                    `Large juvenile` = mean(LargeJuvenileAbundance_indL, na.rm = TRUE),
@@ -58,17 +57,13 @@ ggplot(data, aes(x = Species, y = Total_indL, fill = Medium)) +
   coord_cartesian(ylim=c(0,3000))+
   stat_compare_means(label =  "p.signif", label.x = 1.5, hide.ns = TRUE, label.y = 3000)
 
-  
-
-
-data %>%
+data %>% # check if data is normally distributed
   group_by(Medium, Species) %>%
   summarise(p.value.sw = shapiro.test(Total_indL)$p.value) 
 
 species <- c("D. pulex", "D. pulicaria", "D. galeata", "D. ambigua")
 
-
-for (i in species) {
+for (i in species) { # Kruskal-Wallis test and Dunn's test for every species
   print(i)
   dataF <- data %>% filter(Species == i)
   print(leveneTest(Total_indL ~ Medium, data = dataF)) 
@@ -80,7 +75,3 @@ for (i in species) {
   
   dataF %>% group_by(Medium) %>% summarise(mean = mean(Total_indL, na.rm = TRUE)) %>% as.data.frame() %>% print()
 }
-
-dataF %>% group_by(Medium) %>% summarise(mean = mean(Total_indL, na.rm = TRUE)) %>% as.data.frame()
-
-
