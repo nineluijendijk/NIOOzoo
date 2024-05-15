@@ -2,6 +2,7 @@ library(readxl)
 library(tidyverse)
 library(here)
 library(car)
+library(ggpubr)
 
 dataraw <- read_excel(here("data_raw/Weighingsheet.xlsx"), range = "A1:E61", na = "NA")
 
